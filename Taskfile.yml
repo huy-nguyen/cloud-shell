@@ -1,0 +1,24 @@
+version: "2"
+vars:
+  CONTAINER_USER: googler
+  CONTAINER_GROUP: googler
+  GOOGLE_CLOUD_SDK_VERSION: 292.0.0
+  TAG: huy123/cloud-shell:{{.GOOGLE_CLOUD_SDK_VERSION}}
+
+tasks:
+  build:
+    cmds:
+      - >
+        sed
+        's/GOOGLE_CLOUD_SDK_VERSION/{{.GOOGLE_CLOUD_SDK_VERSION}}/g'
+        Dockerfile.template
+        |
+        docker build
+        -t {{.TAG}}
+        --build-arg CONTAINER_USER={{.CONTAINER_USER}}
+        --build-arg CONTAINER_GROUP={{.CONTAINER_GROUP}}
+        -
+  push:
+    cmds:
+      - docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+      - docker push {{.TAG}}

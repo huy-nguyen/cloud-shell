@@ -1,0 +1,29 @@
+FROM google/cloud-sdk:GOOGLE_CLOUD_SDK_VERSION
+
+ARG CONTAINER_USER
+ARG CONTAINER_GROUP
+
+# TODO: pin exact versions of packages:
+RUN apt-get update && apt-get install -yqq \
+    zsh \
+    vim
+
+# TODO: pin vesrion of go-task:
+RUN sh -c "$(curl -sL https://taskfile.dev/install.sh)"
+
+# TODO: also set UID and GID explicitly:
+RUN groupadd -r $CONTAINER_GROUP \
+  && useradd --no-log-init -r -g $CONTAINER_GROUP $CONTAINER_USER \
+  && mkdir /home/$CONTAINER_USER \
+  && mkdir /home/$CONTAINER_USER/.config \
+  && mkdir /home/$CONTAINER_USER/.kube \
+  && mkdir /home/$CONTAINER_USER/.ssh \
+  && chown -R $CONTAINER_GROUP:$CONTAINER_USER /home/$CONTAINER_USER
+
+USER $CONTAINER_USER
+
+# Install oh-my-zsh:
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" "" --unattended
+
+
+WORKDIR /home/$CONTAINER_USER
