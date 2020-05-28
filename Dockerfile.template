@@ -20,10 +20,29 @@ RUN groupadd -r $CONTAINER_GROUP \
   && mkdir /home/$CONTAINER_USER/.ssh \
   && chown -R $CONTAINER_GROUP:$CONTAINER_USER /home/$CONTAINER_USER
 
+
 USER $CONTAINER_USER
+
+WORKDIR /home/$CONTAINER_USER
 
 # Install oh-my-zsh:
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" "" --unattended
 
+# Install Cloud Foundation Toolkit
+# https://github.com/GoogleCloudPlatform/cloud-foundation-toolkit/blob/4cca1b7fcb970493e34a788ebf2d3fb9ef08685e/dm/docs/userguide.md#installing-the-cft
+RUN git clone https://github.com/GoogleCloudPlatform/cloud-foundation-toolkit
+USER root
+RUN cd cloud-foundation-toolkit/dm \
+  && make cft-prerequisites \
+  && make build \
+  && make install
+RUN chown -R $CONTAINER_GROUP:$CONTAINER_USER cloud-foundation-toolkit
+USER $CONTAINER_USER
 
-WORKDIR /home/$CONTAINER_USER
+# This creates an alias for activating the Python environment necessary for
+# running the CFT CLI from a subdirectory of $CONTAINER_USER's home directory.
+# The only way to shorten these commands is to create a shell alias because
+# they cannot be executed in a subshell e.g. go-task.
+# https://github.com/GoogleCloudPlatform/cloud-foundation-toolkit/blob/719b07c1bbae534e820988bd7a9e741d75bd8a9d/dm/docs/tool_dev_guide.md#development-environment
+RUN echo "cft_activate_env() {source ../cloud-foundation-toolkit/dm/venv/bin/activate; source ../cloud-foundation-toolkit/dm/src/cftenv;}" \
+  >> /home/$CONTAINER_USER/.zshrc
