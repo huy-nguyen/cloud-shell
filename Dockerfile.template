@@ -2,11 +2,15 @@ FROM google/cloud-sdk:GOOGLE_CLOUD_SDK_VERSION
 
 ARG CONTAINER_USER
 ARG CONTAINER_GROUP
+ARG TERRAFORM_VERSION
+ARG CLOUD_FOUNDATION_TOOLKIT_VERSION
 
 # TODO: pin exact versions of packages:
 RUN apt-get update && apt-get install -yqq \
     zsh \
-    vim
+    vim \
+    wget \
+    unzip
 
 # TODO: pin vesrion of go-task:
 RUN sh -c "$(curl -sL https://taskfile.dev/install.sh)"
@@ -20,6 +24,11 @@ RUN groupadd -r $CONTAINER_GROUP \
   && mkdir /home/$CONTAINER_USER/.ssh \
   && chown -R $CONTAINER_GROUP:$CONTAINER_USER /home/$CONTAINER_USER
 
+# Install terraform
+RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -q -O terraform.zip \
+  && unzip terraform.zip \
+  && rm terraform.zip \
+  && mv terraform /usr/local/bin/
 
 USER $CONTAINER_USER
 
@@ -33,11 +42,14 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh
 RUN git clone https://github.com/GoogleCloudPlatform/cloud-foundation-toolkit
 USER root
 RUN cd cloud-foundation-toolkit/dm \
+  && git checkout $CLOUD_FOUNDATION_TOOLKIT_VERSION \
   && make cft-prerequisites \
   && make build \
   && make install
 RUN chown -R $CONTAINER_GROUP:$CONTAINER_USER cloud-foundation-toolkit
+
 USER $CONTAINER_USER
+
 
 # This creates an alias for activating the Python environment necessary for
 # running the CFT CLI from a subdirectory of $CONTAINER_USER's home directory.
