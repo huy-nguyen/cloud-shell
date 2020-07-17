@@ -7,7 +7,9 @@ vars:
   # This is usually a Git hash in the CFT repo:
   CLOUD_FOUNDATION_TOOLKIT_VERSION: d6b9284
 
-  TAG: huy123/cloud-shell:{{.GOOGLE_CLOUD_SDK_VERSION}}-{{.TERRAFORM_VERSION}}-{{.CLOUD_FOUNDATION_TOOLKIT_VERSION}}
+  IMAGE_NAME: huy123/cloud-shell
+  DETAILED_TAG: "{{.IMAGE_NAME}}:{{.GOOGLE_CLOUD_SDK_VERSION}}-TF{{.TERRAFORM_VERSION}}-CFT{{.CLOUD_FOUNDATION_TOOLKIT_VERSION}}"
+  LATEST_TAG: "{{.IMAGE_NAME}}:latest"
 
 tasks:
   build:
@@ -18,7 +20,8 @@ tasks:
         Dockerfile.template
         |
         docker build
-        -t {{.TAG}}
+        -t {{.DETAILED_TAG}}
+        -t {{.LATEST_TAG}}
         --build-arg CONTAINER_USER={{.CONTAINER_USER}}
         --build-arg CONTAINER_GROUP={{.CONTAINER_GROUP}}
         --build-arg TERRAFORM_VERSION={{.TERRAFORM_VERSION}}
@@ -27,4 +30,5 @@ tasks:
   push:
     cmds:
       - docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
-      - docker push {{.TAG}}
+      - docker push {{.DETAILED_TAG}}
+      - docker push {{.LATEST_TAG}}
