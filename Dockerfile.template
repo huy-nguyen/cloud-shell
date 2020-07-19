@@ -56,5 +56,5 @@ USER $CONTAINER_USER
 # The only way to shorten these commands is to create a shell alias because
 # they cannot be executed in a subshell e.g. go-task.
 # https://github.com/GoogleCloudPlatform/cloud-foundation-toolkit/blob/719b07c1bbae534e820988bd7a9e741d75bd8a9d/dm/docs/tool_dev_guide.md#development-environment
-RUN echo "cft_activate_env() {source ../cloud-foundation-toolkit/dm/venv/bin/activate; source ../cloud-foundation-toolkit/dm/src/cftenv;}" \
+RUN echo "cft-activate-env() {source ../cloud-foundation-toolkit/dm/venv/bin/activate; source ../cloud-foundation-toolkit/dm/src/cftenv;}" \
   >> /home/$CONTAINER_USER/.zshrc
