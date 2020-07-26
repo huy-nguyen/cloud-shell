@@ -10,7 +10,8 @@ RUN apt-get update && apt-get install -yqq \
     zsh \
     vim \
     wget \
-    unzip
+    unzip \
+    postgresql-client
 
 # TODO: pin vesrion of go-task:
 RUN sh -c "$(curl -sL https://taskfile.dev/install.sh)"
