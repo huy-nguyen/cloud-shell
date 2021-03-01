@@ -21,6 +21,8 @@ RUN groupadd -r $CONTAINER_GROUP \
   && mkdir /home/$CONTAINER_USER/.config \
   && mkdir /home/$CONTAINER_USER/.kube \
   && mkdir /home/$CONTAINER_USER/.ssh \
+  && mkdir /home/$CONTAINER_USER/.terraform.d \
+  && mkdir /home/$CONTAINER_USER/.terraform.d/plugin-cache \
   && chown -R $CONTAINER_GROUP:$CONTAINER_USER /home/$CONTAINER_USER
 
 # Install terraform
@@ -28,6 +30,9 @@ RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform
   && unzip terraform.zip \
   && rm terraform.zip \
   && mv terraform /usr/local/bin/
+
+RUN echo 'plugin_cache_dir = "/home/'${CONTAINER_USER}'/.terraform.d/plugin-cache"\n\
+' >> /home/${CONTAINER_USER}/.terraformrc
 
 USER $CONTAINER_USER
 
